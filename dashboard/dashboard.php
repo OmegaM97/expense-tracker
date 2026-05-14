@@ -99,97 +99,190 @@ while ($row = $recentResult->fetch_assoc()) {
 }
 $recentStmt->close();
 
-require_once '../includes/header.php';
+require_once __DIR__ . '/../includes/header.php';
 ?>
 
-<div class="dashboard-container">
-    <div class="navbar">
-        <div class="navbar-brand">Expense Tracker</div>
-        <div class="navbar-user">
-            <span>Welcome, <?php echo htmlspecialchars($user_fname . ' ' . $user_lname); ?></span>
-            <a href="../auth/logout.php" class="btn btn-logout">Logout</a>
-        </div>
-    </div>
+<div class="app-shell">
+    <?php require_once __DIR__ . '/../includes/sidebar.php'; ?>
 
-    <div class="dashboard-content">
-        <h2>Dashboard</h2>
+    <div class="main-content">
+        <?php require_once __DIR__ . '/../includes/topbar.php'; ?>
 
-        <div class="card-grid">
-            <div class="summary-card">
-                <h3>Total Balance</h3>
-                <p>$<?php echo number_format($totalBalance, 2); ?></p>
+        <div class="dashboard-grid">
+            <div class="dashboard-intro">
+                <div>
+                    <p class="eyebrow">Overview</p>
+                    <h2>Financial snapshot</h2>
+                    <p>Track your balance, spending habits, and savings in one elegant dashboard.</p>
+                </div>
+                <div class="dashboard-summary-pill">
+                    <span>Today</span>
+                    <strong><?php echo date('F j, Y'); ?></strong>
+                </div>
             </div>
-            <div class="summary-card">
-                <h3>Total Income</h3>
-                <p>$<?php echo number_format($totalIncome, 2); ?></p>
-            </div>
-            <div class="summary-card">
-                <h3>Total Expense</h3>
-                <p>$<?php echo number_format($totalExpense, 2); ?></p>
-            </div>
-            <div class="summary-card">
-                <h3>Monthly Savings</h3>
-                <p>$<?php echo number_format($monthlySavings, 2); ?></p>
-            </div>
-        </div>
 
-        <section class="dashboard-section">
-            <h3>Expense Breakdown by Category</h3>
-            <ul class="analytics-list">
-                <?php foreach ($expensesByCategory as $category): ?>
-                    <li><?php echo htmlspecialchars($category['name']); ?>: $<?php echo number_format($category['total'], 2); ?></li>
-                <?php endforeach; ?>
-            </ul>
-        </section>
+            <div class="stats-grid dashboard-stats">
+                <article class="stat-card">
+                    <div class="stat-card-icon"></div>
+                    <div>
+                        <p class="stat-label">Total Balance</p>
+                        <h3>$<?php echo number_format($totalBalance, 2); ?></h3>
+                    </div>
+                </article>
 
-        <section class="dashboard-section">
-            <h3>Monthly Expense Trend</h3>
-            <ul class="analytics-list">
-                <?php if (empty($monthlySpending)): ?>
-                    <li>No expense data available yet.</li>
-                <?php else: ?>
-                    <?php foreach ($monthlySpending as $month): ?>
-                        <li><?php echo htmlspecialchars($month['month']); ?>: $<?php echo number_format($month['expense'], 2); ?></li>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </ul>
-        </section>
+                <article class="stat-card">
+                    <div class="stat-card-icon"></div>
+                    <div>
+                        <p class="stat-label">Total Income</p>
+                        <h3>$<?php echo number_format($totalIncome, 2); ?></h3>
+                    </div>
+                </article>
 
-        <section class="dashboard-section">
-            <h3>Recent Transactions</h3>
-            <?php if (empty($recentTransactions)): ?>
-                <p>No recent transactions.</p>
-            <?php else: ?>
-                <table class="transaction-table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Title</th>
-                            <th>Category</th>
-                            <th>Type</th>
-                            <th>Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($recentTransactions as $transaction): ?>
+                <article class="stat-card">
+                    <div class="stat-card-icon"></div>
+                    <div>
+                        <p class="stat-label">Total Expense</p>
+                        <h3>$<?php echo number_format($totalExpense, 2); ?></h3>
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-card-icon"></div>
+                    <div>
+                        <p class="stat-label">Monthly Savings</p>
+                        <h3>$<?php echo number_format($monthlySavings, 2); ?></h3>
+                    </div>
+                </article>
+            </div>
+
+            <section class="chart-section">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div>
+                            <p class="eyebrow">Insights</p>
+                            <h3>Expenses by Category</h3>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div>
+                            <p class="eyebrow">Trend</p>
+                            <h3>Monthly Spending Overview</h3>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section class="transactions-card">
+                <div class="transactions-header">
+                    <div>
+                        <p class="eyebrow">Recent activity</p>
+                        <h3>Latest Transactions</h3>
+                    </div>
+                    <a href="../transactions/transaction.php" class="link-button">See all</a>
+                </div>
+
+                <div class="table-overflow">
+                    <table class="transaction-table">
+                        <thead>
                             <tr>
-                                <td><?php echo htmlspecialchars($transaction['transaction_date']); ?></td>
-                                <td><?php echo htmlspecialchars($transaction['title']); ?></td>
-                                <td><?php echo htmlspecialchars($transaction['category']); ?></td>
-                                <td><?php echo htmlspecialchars($transaction['type']); ?></td>
-                                <td>$<?php echo number_format($transaction['amount'], 2); ?></td>
+                                <th>Date</th>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Type</th>
+                                <th>Amount</th>
                             </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php endif; ?>
-        </section>
-
-        <div class="dashboard-actions">
-            <a href="../transactions/transaction.php" class="btn btn-primary">Quick Add Transaction</a>
-            <a href="../reports/report.php" class="btn btn-secondary">View Reports</a>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($recentTransactions)): ?>
+                                <tr>
+                                    <td colspan="5">No recent transactions.</td>
+                                </tr>
+                            <?php else: ?>
+                                <?php foreach ($recentTransactions as $transaction): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars(date('M j, Y', strtotime($transaction['transaction_date']))); ?></td>
+                                        <td><?php echo htmlspecialchars($transaction['title']); ?></td>
+                                        <td><?php echo htmlspecialchars($transaction['category']); ?></td>
+                                        <td class="transaction-type <?php echo $transaction['type'] === 'income' ? 'type-income' : 'type-expense'; ?>">
+                                            <?php echo htmlspecialchars(ucfirst($transaction['type'])); ?>
+                                        </td>
+                                        <td class="amount <?php echo $transaction['type'] === 'income' ? 'amount-positive' : 'amount-negative'; ?>">
+                                            <?php echo $transaction['type'] === 'income' ? '+' : '-'; ?>$<?php echo number_format($transaction['amount'], 2); ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
         </div>
     </div>
 </div>
 
-<?php require_once '../includes/footer.php'; ?>
+<button class="fab" id="dashboardFab" aria-label="Add transaction">
+    <span>+</span>
+</button>
+
+<div class="modal-overlay" id="modalOverlay"></div>
+<div class="modal" id="quickAddModal">
+    <div class="modal-header">
+        <div>
+            <p class="eyebrow">Quick add</p>
+            <h3>Add transaction</h3>
+        </div>
+        <button class="modal-close" id="modalCloseButton" aria-label="Close modal">×</button>
+    </div>
+    <form id="quickAddForm" class="modal-form">
+        <div class="form-row">
+            <label>Title</label>
+            <input type="text" placeholder="Groceries" required>
+        </div>
+        <div class="form-row">
+            <label>Category</label>
+            <select required>
+                <option value="Food">Food</option>
+                <option value="Shopping">Shopping</option>
+                <option value="Transport">Transport</option>
+                <option value="Bills">Bills</option>
+                <option value="Entertainment">Entertainment</option>
+            </select>
+        </div>
+        <div class="form-row split-row">
+            <div>
+                <label>Amount</label>
+                <input type="number" step="0.01" placeholder="0.00" required>
+            </div>
+            <div>
+                <label>Type</label>
+                <select required>
+                    <option value="expense">Expense</option>
+                    <option value="income">Income</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <label>Date</label>
+            <input type="date" required>
+        </div>
+        <button type="submit" class="auth-btn auth-btn-primary">Add Transaction</button>
+    </form>
+</div>
+
+<script>
+    window.expenseCategoryData = <?php echo json_encode($expensesByCategory); ?>;
+    window.monthlySpendingData = <?php echo json_encode($monthlySpending); ?>;
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/expense-tracker/assets/js/dashboard.js"></script>
+
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>
