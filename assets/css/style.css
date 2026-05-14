@@ -1,0 +1,311 @@
+/* Expense Tracker Stylesheet */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+/* Landing Page */
+.landing-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.landing-container {
+    text-align: center;
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 3rem;
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+}
+
+.landing-container h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.landing-container p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+.auth-options {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+/* Auth Pages */
+.auth-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.auth-container h2 {
+    color: white;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+}
+
+.auth-container {
+    width: 100%;
+}
+
+.auth-container > * {
+    width: 100%;
+    max-width: 400px;
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.auth-container h2 {
+    color: #333;
+    margin-bottom: 1.5rem;
+}
+
+/* Form Group */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+}
+
+/* Buttons */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background-color: #667eea;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #5568d3;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background-color: #764ba2;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #6a3d8f;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+}
+
+.auth-container button,
+.auth-container input[type="submit"] {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #667eea;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.auth-container button:hover,
+.auth-container input[type="submit"]:hover {
+    background-color: #5568d3;
+}
+
+/* Auth Links */
+.auth-container p {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: #666;
+}
+
+.auth-container a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-container a:hover {
+    text-decoration: underline;
+}
+
+/* Messages */
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 1rem;
+    border-radius: 5px;
+    margin-bottom: 1.5rem;
+    border: 1px solid #f5c6cb;
+}
+
+.success-message {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 1rem;
+    border-radius: 5px;
+    margin-bottom: 1.5rem;
+    border: 1px solid #c3e6cb;
+}
+
+/* Dashboard */
+.dashboard-container {
+    min-height: 100vh;
+    background-color: #f5f5f5;
+}
+
+.navbar {
+    background-color: #2c3e50;
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.navbar-user {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.btn-logout {
+    background-color: #e74c3c;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+.btn-logout:hover {
+    background-color: #c0392b;
+}
+
+.dashboard-content {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-content h2 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+}
+
+.dashboard-content p {
+    margin-bottom: 0.5rem;
+    color: #555;
+}
+
+.dashboard-menu {
+    margin-top: 2rem;
+}
+
+.dashboard-menu ul {
+    list-style: none;
+    display: flex;
+    gap: 1rem;
+}
+
+.dashboard-menu a {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background-color: #667eea;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.dashboard-menu a:hover {
+    background-color: #5568d3;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .landing-container {
+        padding: 2rem;
+    }
+
+    .landing-container h1 {
+        font-size: 2rem;
+    }
+
+    .auth-options {
+        flex-direction: column;
+    }
+
+    .navbar {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .navbar-user {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .dashboard-menu ul {
+        flex-direction: column;
+    }
+
+    .dashboard-menu a {
+        width: 100%;
+        text-align: center;
+    }
+}
