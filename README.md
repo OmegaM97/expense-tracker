@@ -48,47 +48,21 @@ A modern PHP expense tracker web app with login/register, premium dashboard UI, 
    - Apache
    - MySQL
 
-3. Create the database and tables:
+3. Create the database and tables: using the SQL provided in schema.sql on database folder
 
-   - Open phpMyAdmin at `http://localhost/phpmyadmin`
-   - Create a new database named `expense_tracker`
-   - Import the schema from `database/schema.sql`
-
-   Or run the SQL directly in phpMyAdmin:
-
-   ```sql
-   CREATE DATABASE expense_tracker;
-   USE expense_tracker;
-   -- then import the rest of schema.sql
-   ```
-
-4. Confirm database credentials in `config/db.php`:
-
-   ```php
-   define('DB_HOST', 'localhost');
-   define('DB_USER', 'root');
-   define('DB_PASS', '');
-   define('DB_NAME', 'expense_tracker');
-   ```
-
-   Update these values if your local MySQL user or password differs.
-
-5. Open the app in your browser:
+4. Open the app in your browser:
 
    - `http://localhost/expense-tracker`
 
-6. Register a new user:
+5. Register a new user:
 
    - Visit `Register`
    - Enter first name, last name, email, password
    - After successful registration, login with the new account
 
-7. Start tracking transactions:
+6. Start tracking transactions:
 
-   - Access the dashboard
-   - Go to `Transactions`
-   - Add income and expense entries
-   - View reports from the `Reports` page
+   on the schema.sql there is data to insert into transaction execute it on user SQL engine but make sure there is at least on user is created
 
 ## Database Notes
 
