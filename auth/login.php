@@ -2,6 +2,11 @@
 require_once '../config/session.php';
 require_once '../config/db.php';
 
+if (isset($_SESSION['user_id']) && isset($_SESSION['user_verified']) && $_SESSION['user_verified'] === true) {
+    header('Location: ../dashboard/dashboard.php');
+    exit;
+}
+
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

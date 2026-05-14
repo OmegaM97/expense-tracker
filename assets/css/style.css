@@ -252,7 +252,72 @@ body {
     color: #555;
 }
 
-.dashboard-menu {
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.summary-card {
+    background-color: #ffffff;
+    border: 1px solid #e7e7e7;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+}
+
+.summary-card h3,
+.summary-card h4 {
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.summary-card p {
+    font-size: 1.75rem;
+    color: #667eea;
+    font-weight: 700;
+}
+
+.analytics-list {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 1rem;
+}
+
+.analytics-list li {
+    margin-bottom: 0.75rem;
+    color: #444;
+}
+
+.transaction-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.transaction-table th,
+.transaction-table td {
+    padding: 0.9rem 1rem;
+    border: 1px solid #ebebeb;
+    text-align: left;
+}
+
+.transaction-table th {
+    background-color: #f7f7fb;
+    color: #333;
+}
+
+.filter-form {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.dashboard-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
     margin-top: 2rem;
 }
 
