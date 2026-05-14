@@ -65,3 +65,39 @@ INSERT INTO categories (name) VALUES
 ('Health'),
 ('Salary'),
 ('Freelance');
+
+
+INSERT INTO transactions 
+(
+    user_id,
+    category_id,
+    title,
+    amount,
+    type,
+    payment_method,
+    note,
+    transaction_date
+)
+VALUES
+
+-- INCOME
+(1, 7, 'Monthly Salary', 25000.00, 'income', 'bank', 'Company salary payment', '2026-05-01'),
+
+(1, 8, 'Freelance Website Project', 8000.00, 'income', 'mobile_payment', 'Client payment for website', '2026-06-05'),
+
+-- EXPENSES
+(1, 1, 'Burger Lunch', 350.00, 'expense', 'cash', 'Lunch at restaurant', '2026-05-06'),
+
+(1, 2, 'Taxi Ride', 500.00, 'expense', 'cash', 'Ride to university', '2026-05-07'),
+
+(1, 3, 'New Headphones', 2500.00, 'expense', 'debit_card', 'Bought headphones', '2026-04-08'),
+
+(1, 4, 'Electric Bill', 1800.00, 'expense', 'bank', 'Monthly electric payment', '2026-05-09'),
+
+(1, 5, 'Cinema Ticket', 600.00, 'expense', 'cash', 'Weekend movie', '2026-04-10'),
+
+(1, 6, 'Medicine', 750.00, 'expense', 'cash', 'Pharmacy purchase', '2026-05-11'),
+
+(1, 1, 'Pizza Dinner', 900.00, 'expense', 'credit_card', 'Dinner with friends', '2026-07-12'),
+
+(1, 2, 'Fuel Expense', 2200.00, 'expense', 'bank', 'Fuel refill', '2026-07-13');

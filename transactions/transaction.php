@@ -213,167 +213,200 @@ if ($stmt) {
     $stmt->close();
 }
 
-require_once '../includes/header.php';
+require_once __DIR__ . '/../includes/header.php';
 ?>
 
-<div class="dashboard-container">
-    <div class="navbar">
-        <div class="navbar-brand">Expense Tracker</div>
-        <div class="navbar-user">
-            <span><?php echo htmlspecialchars($_SESSION['user_fname'] . ' ' . $_SESSION['user_lname']); ?></span>
-            <a href="../auth/logout.php" class="btn btn-logout">Logout</a>
+<div class="app-shell">
+    <?php require_once __DIR__ . '/../includes/sidebar.php'; ?>
+
+    <div class="main-content">
+        <?php require_once __DIR__ . '/../includes/topbar.php'; ?>
+
+        <div class="dashboard-grid">
+            <div class="dashboard-intro">
+                <div>
+                    <p class="eyebrow">Transactions</p>
+                    <h2><?php echo $editMode ? 'Edit Transaction' : 'Add Transaction'; ?></h2>
+                    <p>Manage your income and expenses with precise control over categories, payment methods, and notes.</p>
+                </div>
+                <div class="dashboard-summary-pill">
+                    <span><?php echo $editMode ? 'Edit mode' : 'Create new'; ?></span>
+                    <strong><?php echo date('F j, Y'); ?></strong>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <?php if ($error): ?>
+                    <div class="auth-message auth-error">
+                        <?php echo htmlspecialchars($error); ?>
+                    </div>
+                <?php endif; ?>
+                <?php if (!empty($success)): ?>
+                    <div class="auth-message auth-success">
+                        <?php echo htmlspecialchars($success); ?>
+                    </div>
+                <?php endif; ?>
+
+                <form method="POST" action="transaction.php" class="modal-form">
+                    <?php if ($editMode): ?>
+                        <input type="hidden" name="transaction_id" value="<?php echo (int) $transaction['id']; ?>">
+                    <?php endif; ?>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="title">Title</label>
+                            <input type="text" id="title" name="title" value="<?php echo htmlspecialchars($transaction['title']); ?>" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="amount">Amount</label>
+                            <input type="number" step="0.01" id="amount" name="amount" value="<?php echo htmlspecialchars($transaction['amount']); ?>" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="type">Type</label>
+                            <select id="type" name="type" required>
+                                <option value="income" <?php echo $transaction['type'] === 'income' ? 'selected' : ''; ?>>Income</option>
+                                <option value="expense" <?php echo $transaction['type'] === 'expense' ? 'selected' : ''; ?>>Expense</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="category_id">Category</label>
+                            <select id="category_id" name="category_id" required>
+                                <option value="">Select category</option>
+                                <?php foreach ($categories as $category): ?>
+                                    <option value="<?php echo (int) $category['id']; ?>" <?php echo $transaction['category_id'] === (int) $category['id'] ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($category['name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="payment_method">Payment Method</label>
+                            <select id="payment_method" name="payment_method" required>
+                                <?php
+                                $methods = ['cash' => 'Cash', 'bank' => 'Bank', 'credit_card' => 'Credit Card', 'debit_card' => 'Debit Card', 'mobile_payment' => 'Mobile Payment'];
+                                foreach ($methods as $key => $label):
+                                ?>
+                                    <option value="<?php echo $key; ?>" <?php echo $transaction['payment_method'] === $key ? 'selected' : ''; ?>><?php echo $label; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="transaction_date">Date</label>
+                            <input type="date" id="transaction_date" name="transaction_date" value="<?php echo htmlspecialchars($transaction['transaction_date']); ?>" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="note">Note</label>
+                        <textarea id="note" name="note"><?php echo htmlspecialchars($transaction['note']); ?></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <button type="submit" class="auth-btn auth-btn-primary"><?php echo $editMode ? 'Update Transaction' : 'Add Transaction'; ?></button>
+                        <?php if ($editMode): ?>
+                            <a href="transaction.php" class="btn btn-secondary">Cancel</a>
+                        <?php endif; ?>
+                    </div>
+                </form>
+            </div>
+
+            <section class="transactions-card">
+                <div class="transactions-header">
+                    <div>
+                        <p class="eyebrow">Rich filters</p>
+                        <h3>Search & manage recent transactions</h3>
+                    </div>
+                    <a href="transaction.php" class="link-button">Reset filters</a>
+                </div>
+
+                <form method="GET" action="transaction.php" class="modal-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="search">Search</label>
+                            <input type="text" id="search" name="search" value="<?php echo htmlspecialchars($search); ?>" placeholder="Title, category, method, amount">
+                        </div>
+                        <div class="form-group">
+                            <label for="category">Category</label>
+                            <select id="category" name="category">
+                                <option value="">All categories</option>
+                                <?php foreach ($categories as $category): ?>
+                                    <option value="<?php echo (int) $category['id']; ?>" <?php echo $filterCategory === (int) $category['id'] ? 'selected' : ''; ?>><?php echo htmlspecialchars($category['name']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="type">Type</label>
+                            <select id="type" name="type">
+                                <option value="">All</option>
+                                <option value="income" <?php echo $filterType === 'income' ? 'selected' : ''; ?>>Income</option>
+                                <option value="expense" <?php echo $filterType === 'expense' ? 'selected' : ''; ?>>Expense</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="from_date">From</label>
+                            <input type="date" id="from_date" name="from_date" value="<?php echo htmlspecialchars($fromDate); ?>">
+                        </div>
+                        <div class="form-group">
+                            <label for="to_date">To</label>
+                            <input type="date" id="to_date" name="to_date" value="<?php echo htmlspecialchars($toDate); ?>">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <button type="submit" class="auth-btn auth-btn-primary">Filter</button>
+                        <a href="transaction.php" class="btn btn-secondary">Clear</a>
+                    </div>
+                </form>
+
+                <?php if (empty($transactions)): ?>
+                    <p>No transactions found.</p>
+                <?php else: ?>
+                    <div class="table-overflow">
+                        <table class="transaction-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Method</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($transactions as $item): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($item['transaction_date']); ?></td>
+                                        <td><?php echo htmlspecialchars($item['title']); ?></td>
+                                        <td><?php echo htmlspecialchars($item['category_name']); ?></td>
+                                        <td class="transaction-type <?php echo $item['type'] === 'income' ? 'type-income' : 'type-expense'; ?>">
+                                            <?php echo htmlspecialchars(ucfirst($item['type'])); ?>
+                                        </td>
+                                        <td class="amount <?php echo $item['type'] === 'income' ? 'amount-positive' : 'amount-negative'; ?>">
+                                            <?php echo $item['type'] === 'income' ? '+' : '-'; ?>$<?php echo number_format($item['amount'], 2); ?>
+                                        </td>
+                                        <td><?php echo htmlspecialchars($item['payment_method']); ?></td>
+                                        <td>
+                                            <a href="transaction.php?action=edit&id=<?php echo (int) $item['id']; ?>">Edit</a>
+                                            <a href="transaction.php?action=delete&id=<?php echo (int) $item['id']; ?>" onclick="return confirm('Delete this transaction?');">Delete</a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
+            </section>
         </div>
-    </div>
-
-    <div class="dashboard-content">
-        <h2><?php echo $editMode ? 'Edit Transaction' : 'Add Transaction'; ?></h2>
-
-        <?php if ($error): ?>
-            <div class="error-message"><?php echo htmlspecialchars($error); ?></div>
-        <?php endif; ?>
-        <?php if (!empty($success)): ?>
-            <div class="success-message"><?php echo htmlspecialchars($success); ?></div>
-        <?php endif; ?>
-
-        <form method="POST" action="transaction.php">
-            <?php if ($editMode): ?>
-                <input type="hidden" name="transaction_id" value="<?php echo (int) $transaction['id']; ?>">
-            <?php endif; ?>
-
-            <div class="form-group">
-                <label for="title">Title</label>
-                <input type="text" id="title" name="title" value="<?php echo htmlspecialchars($transaction['title']); ?>" required>
-            </div>
-
-            <div class="form-group">
-                <label for="amount">Amount</label>
-                <input type="number" step="0.01" id="amount" name="amount" value="<?php echo htmlspecialchars($transaction['amount']); ?>" required>
-            </div>
-
-            <div class="form-group">
-                <label for="type">Type</label>
-                <select id="type" name="type" required>
-                    <option value="income" <?php echo $transaction['type'] === 'income' ? 'selected' : ''; ?>>Income</option>
-                    <option value="expense" <?php echo $transaction['type'] === 'expense' ? 'selected' : ''; ?>>Expense</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="category_id">Category</label>
-                <select id="category_id" name="category_id" required>
-                    <option value="">Select category</option>
-                    <?php foreach ($categories as $category): ?>
-                        <option value="<?php echo (int) $category['id']; ?>" <?php echo $transaction['category_id'] === (int) $category['id'] ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($category['name']); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="payment_method">Payment Method</label>
-                <select id="payment_method" name="payment_method" required>
-                    <?php
-                    $methods = ['cash' => 'Cash', 'bank' => 'Bank', 'credit_card' => 'Credit Card', 'debit_card' => 'Debit Card', 'mobile_payment' => 'Mobile Payment'];
-                    foreach ($methods as $key => $label):
-                    ?>
-                        <option value="<?php echo $key; ?>" <?php echo $transaction['payment_method'] === $key ? 'selected' : ''; ?>><?php echo $label; ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="transaction_date">Date</label>
-                <input type="date" id="transaction_date" name="transaction_date" value="<?php echo htmlspecialchars($transaction['transaction_date']); ?>" required>
-            </div>
-
-            <div class="form-group">
-                <label for="note">Note</label>
-                <textarea id="note" name="note"><?php echo htmlspecialchars($transaction['note']); ?></textarea>
-            </div>
-
-            <button type="submit" class="btn btn-primary"><?php echo $editMode ? 'Update Transaction' : 'Add Transaction'; ?></button>
-            <?php if ($editMode): ?>
-                <a href="transaction.php" class="btn btn-secondary">Cancel</a>
-            <?php endif; ?>
-        </form>
-
-        <section class="dashboard-section">
-            <h3>Search & Filters</h3>
-            <form method="GET" action="transaction.php" class="filter-form">
-                <div class="form-group">
-                    <label for="search">Search</label>
-                    <input type="text" id="search" name="search" value="<?php echo htmlspecialchars($search); ?>" placeholder="Title, category, method, amount">
-                </div>
-                <div class="form-group">
-                    <label for="category">Category</label>
-                    <select id="category" name="category">
-                        <option value="">All categories</option>
-                        <?php foreach ($categories as $category): ?>
-                            <option value="<?php echo (int) $category['id']; ?>" <?php echo $filterCategory === (int) $category['id'] ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($category['name']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="type">Type</label>
-                    <select id="type" name="type">
-                        <option value="">All</option>
-                        <option value="income" <?php echo $filterType === 'income' ? 'selected' : ''; ?>>Income</option>
-                        <option value="expense" <?php echo $filterType === 'expense' ? 'selected' : ''; ?>>Expense</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="from_date">From</label>
-                    <input type="date" id="from_date" name="from_date" value="<?php echo htmlspecialchars($fromDate); ?>">
-                </div>
-                <div class="form-group">
-                    <label for="to_date">To</label>
-                    <input type="date" id="to_date" name="to_date" value="<?php echo htmlspecialchars($toDate); ?>">
-                </div>
-                <button type="submit" class="btn btn-primary">Filter</button>
-                <a href="transaction.php" class="btn btn-secondary">Reset</a>
-            </form>
-        </section>
-
-        <section class="dashboard-section">
-            <h3>Recent Transactions</h3>
-            <?php if (empty($transactions)): ?>
-                <p>No transactions found.</p>
-            <?php else: ?>
-                <table class="transaction-table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Title</th>
-                            <th>Category</th>
-                            <th>Type</th>
-                            <th>Amount</th>
-                            <th>Method</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($transactions as $item): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($item['transaction_date']); ?></td>
-                                <td><?php echo htmlspecialchars($item['title']); ?></td>
-                                <td><?php echo htmlspecialchars($item['category_name']); ?></td>
-                                <td><?php echo htmlspecialchars($item['type']); ?></td>
-                                <td>$<?php echo number_format($item['amount'], 2); ?></td>
-                                <td><?php echo htmlspecialchars($item['payment_method']); ?></td>
-                                <td>
-                                    <a href="transaction.php?action=edit&id=<?php echo (int) $item['id']; ?>">Edit</a>
-                                    <a href="transaction.php?action=delete&id=<?php echo (int) $item['id']; ?>" onclick="return confirm('Delete this transaction?');">Delete</a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php endif; ?>
-        </section>
     </div>
 </div>
 
-<?php require_once '../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>

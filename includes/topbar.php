@@ -1,3 +1,7 @@
+<?php
+$user_fname = $_SESSION['user_fname'] ?? ($_SESSION['user']['first_name'] ?? 'Guest');
+$user_lname = $_SESSION['user_lname'] ?? ($_SESSION['user']['last_name'] ?? '');
+?>
 <header class="topbar">
     <div class="topbar-left">
         <div>

@@ -50,11 +50,12 @@ $totalsStmt = $conn->prepare(
 );
 $totalsStmt->bind_param('iss', $user_id, $startDate, $endDate);
 $totalsStmt->execute();
-$totals = $totalsStmt->get_result()->fetch_assoc();
+$totalsStmt->bind_result($totalIncome, $totalExpense);
+$totalsStmt->fetch();
 $totalsStmt->close();
 
-$totalIncome = (float) $totals['total_income'];
-$totalExpense = (float) $totals['total_expense'];
+$totalIncome = (float) $totalIncome;
+$totalExpense = (float) $totalExpense;
 $netAmount = $totalIncome - $totalExpense;
 $savingsRate = $totalIncome > 0 ? round((($totalIncome - $totalExpense) / $totalIncome) * 100, 2) : 0;
 
@@ -71,7 +72,14 @@ $topCategoryStmt = $conn->prepare(
 );
 $topCategoryStmt->bind_param('iss', $user_id, $startDate, $endDate);
 $topCategoryStmt->execute();
-$topCategory = $topCategoryStmt->get_result()->fetch_assoc();
+$topCategoryStmt->bind_result($topCategoryName, $topCategoryTotal);
+$topCategory = [];
+if ($topCategoryStmt->fetch()) {
+    $topCategory = [
+        'name' => $topCategoryName,
+        'total_spent' => $topCategoryTotal,
+    ];
+}
 $topCategoryStmt->close();
 
 $trendStmt = $conn->prepare(
@@ -86,114 +94,157 @@ $trendStmt = $conn->prepare(
 );
 $trendStmt->bind_param('i', $user_id);
 $trendStmt->execute();
+$trendStmt->bind_result($trendMonth, $trendIncome, $trendExpense);
 $trendData = [];
-while ($row = $trendStmt->get_result()->fetch_assoc()) {
-    $trendData[] = $row;
+while ($trendStmt->fetch()) {
+    $trendData[] = [
+        'month' => $trendMonth,
+        'income' => $trendIncome,
+        'expense' => $trendExpense,
+    ];
 }
 $trendStmt->close();
 
-require_once '../includes/header.php';
+require_once __DIR__ . '/../includes/header.php';
 ?>
 
-<div class="dashboard-container">
-    <div class="navbar">
-        <div class="navbar-brand">Expense Tracker</div>
-        <div class="navbar-user">
-            <span><?php echo htmlspecialchars($_SESSION['user_fname'] . ' ' . $_SESSION['user_lname']); ?></span>
-            <a href="../auth/logout.php" class="btn btn-logout">Logout</a>
-        </div>
-    </div>
+<div class="app-shell">
+    <?php require_once __DIR__ . '/../includes/sidebar.php'; ?>
 
-    <div class="dashboard-content">
-        <h2>Reports & Analytics</h2>
+    <div class="main-content">
+        <?php require_once __DIR__ . '/../includes/topbar.php'; ?>
 
-        <section class="dashboard-section">
-            <h3>Filter</h3>
-            <form method="GET" action="report.php" class="filter-form">
-                <div class="form-group">
-                    <label for="range">Range</label>
-                    <select id="range" name="range">
-                        <option value="day" <?php echo $range === 'day' ? 'selected' : ''; ?>>Day</option>
-                        <option value="week" <?php echo $range === 'week' ? 'selected' : ''; ?>>Week</option>
-                        <option value="month" <?php echo $range === 'month' ? 'selected' : ''; ?>>Month</option>
-                        <option value="year" <?php echo $range === 'year' ? 'selected' : ''; ?>>Year</option>
-                        <option value="custom" <?php echo $range === 'custom' ? 'selected' : ''; ?>>Custom</option>
-                    </select>
+        <div class="dashboard-grid">
+            <div class="dashboard-intro">
+                <div>
+                    <p class="eyebrow">Reports</p>
+                    <h2>Reports & Analytics</h2>
+                    <p>Review your spending performance and savings trends over customized timeframes.</p>
                 </div>
-                <div class="form-group">
-                    <label for="from_date">From</label>
-                    <input type="date" id="from_date" name="from_date" value="<?php echo htmlspecialchars($fromDate); ?>">
-                </div>
-                <div class="form-group">
-                    <label for="to_date">To</label>
-                    <input type="date" id="to_date" name="to_date" value="<?php echo htmlspecialchars($toDate); ?>">
-                </div>
-                <button type="submit" class="btn btn-primary">Apply</button>
-            </form>
-        </section>
-
-        <section class="dashboard-section">
-            <h3><?php echo htmlspecialchars($periodLabel); ?> Summary</h3>
-            <div class="card-grid">
-                <div class="summary-card">
-                    <h4>Total Income</h4>
-                    <p>$<?php echo number_format($totalIncome, 2); ?></p>
-                </div>
-                <div class="summary-card">
-                    <h4>Total Expense</h4>
-                    <p>$<?php echo number_format($totalExpense, 2); ?></p>
-                </div>
-                <div class="summary-card">
-                    <h4>Net Savings</h4>
-                    <p>$<?php echo number_format($netAmount, 2); ?></p>
-                </div>
-                <div class="summary-card">
-                    <h4>Savings Rate</h4>
-                    <p><?php echo number_format($savingsRate, 2); ?>%</p>
+                <div class="dashboard-summary-pill">
+                    <span><?php echo htmlspecialchars($periodLabel); ?></span>
+                    <strong><?php echo date('F j, Y'); ?></strong>
                 </div>
             </div>
-        </section>
 
-        <section class="dashboard-section">
-            <h3>Top Spending Category</h3>
-            <?php if (!empty($topCategory) && $topCategory['total_spent'] > 0): ?>
-                <p><?php echo htmlspecialchars($topCategory['name']); ?> — $<?php echo number_format($topCategory['total_spent'], 2); ?></p>
-            <?php else: ?>
-                <p>No spending found in this period.</p>
-            <?php endif; ?>
-        </section>
+            <section class="chart-card">
+                <div class="chart-card-header">
+                    <div>
+                        <p class="eyebrow">Filter</p>
+                        <h3>Report timeframe</h3>
+                    </div>
+                </div>
+                <form method="GET" action="report.php" class="modal-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="range">Range</label>
+                            <select id="range" name="range">
+                                <option value="day" <?php echo $range === 'day' ? 'selected' : ''; ?>>Day</option>
+                                <option value="week" <?php echo $range === 'week' ? 'selected' : ''; ?>>Week</option>
+                                <option value="month" <?php echo $range === 'month' ? 'selected' : ''; ?>>Month</option>
+                                <option value="year" <?php echo $range === 'year' ? 'selected' : ''; ?>>Year</option>
+                                <option value="custom" <?php echo $range === 'custom' ? 'selected' : ''; ?>>Custom</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="from_date">From</label>
+                            <input type="date" id="from_date" name="from_date" value="<?php echo htmlspecialchars($fromDate); ?>">
+                        </div>
+                        <div class="form-group">
+                            <label for="to_date">To</label>
+                            <input type="date" id="to_date" name="to_date" value="<?php echo htmlspecialchars($toDate); ?>">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <button type="submit" class="auth-btn auth-btn-primary">Apply</button>
+                        <a href="report.php" class="btn btn-secondary">Reset</a>
+                    </div>
+                </form>
+            </section>
 
-        <section class="dashboard-section">
-            <h3>Income vs Expense Trend</h3>
-            <?php if (empty($trendData)): ?>
-                <p>No trend data available.</p>
-            <?php else: ?>
-                <table class="transaction-table">
-                    <thead>
-                        <tr>
-                            <th>Month</th>
-                            <th>Income</th>
-                            <th>Expense</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($trendData as $point): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($point['month']); ?></td>
-                                <td>$<?php echo number_format($point['income'], 2); ?></td>
-                                <td>$<?php echo number_format($point['expense'], 2); ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php endif; ?>
-        </section>
+            <section class="stats-grid">
+                <article class="stat-card">
+                    <div class="stat-card-icon"></div>
+                    <div>
+                        <p class="stat-label">Total Income</p>
+                        <h3>$<?php echo number_format($totalIncome, 2); ?></h3>
+                    </div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-card-icon"></div>
+                    <div>
+                        <p class="stat-label">Total Expense</p>
+                        <h3>$<?php echo number_format($totalExpense, 2); ?></h3>
+                    </div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-card-icon"></div>
+                    <div>
+                        <p class="stat-label">Net Savings</p>
+                        <h3>$<?php echo number_format($netAmount, 2); ?></h3>
+                    </div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-card-icon"></div>
+                    <div>
+                        <p class="stat-label">Savings Rate</p>
+                        <h3><?php echo number_format($savingsRate, 2); ?>%</h3>
+                    </div>
+                </article>
+            </section>
 
-        <div class="dashboard-actions">
-            <a href="../transactions/transaction.php" class="btn btn-primary">Add Transaction</a>
-            <a href="../dashboard/dashboard.php" class="btn btn-secondary">Back to Dashboard</a>
+            <section class="chart-card">
+                <div class="chart-card-header">
+                    <div>
+                        <p class="eyebrow">Highlight</p>
+                        <h3>Top Spending Category</h3>
+                    </div>
+                </div>
+                <div>
+                    <?php if (!empty($topCategory) && $topCategory['total_spent'] > 0): ?>
+                        <p class="stat-label"><?php echo htmlspecialchars($topCategory['name']); ?> — <strong>$<?php echo number_format($topCategory['total_spent'], 2); ?></strong></p>
+                    <?php else: ?>
+                        <p>No spending found in this period.</p>
+                    <?php endif; ?>
+                </div>
+            </section>
+
+            <section class="transactions-card">
+                <div class="transactions-header">
+                    <div>
+                        <p class="eyebrow">Trend</p>
+                        <h3>Income vs Expense</h3>
+                    </div>
+                    <a href="../dashboard/dashboard.php" class="link-button">Back to dashboard</a>
+                </div>
+
+                <?php if (empty($trendData)): ?>
+                    <p>No trend data available.</p>
+                <?php else: ?>
+                    <div class="table-overflow">
+                        <table class="transaction-table">
+                            <thead>
+                                <tr>
+                                    <th>Month</th>
+                                    <th>Income</th>
+                                    <th>Expense</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($trendData as $point): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($point['month']); ?></td>
+                                        <td>$<?php echo number_format($point['income'], 2); ?></td>
+                                        <td>$<?php echo number_format($point['expense'], 2); ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
+            </section>
         </div>
     </div>
 </div>
 
-<?php require_once '../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>

@@ -1,3 +1,6 @@
+<?php
+$currentPage = $currentPage ?? basename($_SERVER['REQUEST_URI']);
+?>
 <aside class="app-sidebar">
     <div class="sidebar-brand">
         <div class="sidebar-icon">
@@ -14,15 +17,15 @@
     </div>
 
     <nav class="sidebar-nav">
-        <a href="/expense-tracker/dashboard/dashboard.php" class="sidebar-link active">
+        <a href="/expense-tracker/dashboard/dashboard.php" class="sidebar-link <?php echo $currentPage === 'dashboard.php' ? 'active' : ''; ?>">
             <span class="sidebar-link-icon"></span>
             <span>Dashboard</span>
         </a>
-        <a href="/expense-tracker/transactions/transaction.php" class="sidebar-link">
+        <a href="/expense-tracker/transactions/transaction.php" class="sidebar-link <?php echo $currentPage === 'transaction.php' ? 'active' : ''; ?>">
             <span class="sidebar-link-icon"></span>
             <span>Transactions</span>
         </a>
-        <a href="/expense-tracker/reports/report.php" class="sidebar-link">
+        <a href="/expense-tracker/reports/report.php" class="sidebar-link <?php echo $currentPage === 'report.php' ? 'active' : ''; ?>">
             <span class="sidebar-link-icon"></span>
             <span>Reports</span>
         </a>
